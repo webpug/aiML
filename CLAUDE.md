@@ -17,6 +17,11 @@ color.
   NumPy/CPU build; section 8 is the PyTorch/GPU CPPN extension.
 - `neural_flow_screensaver.mp4` / `neural_flow_still.png` — CPU artifacts.
 - `neural_flow_gpu.mp4` / `neural_flow_gpu_still.png` — GPU CPPN artifacts.
+- `ml_concepts_screensavers.ipynb` — second notebook, builds on the first:
+  diffusion models, SSMs and transformers, each as a 15-minute looping
+  screensaver (`diffusion_loop.mp4`, `ssm_loop.mp4`, `transformer_loop.mp4`,
+  git-ignored; `*_still.png` posters are committed). Frames stream straight
+  into ffmpeg; `LOOP_SECONDS` env var shortens the loops for iteration.
 - `.venv/` — local virtualenv (not committed).
 
 ## Running it
@@ -45,6 +50,15 @@ Hard deps: `numpy`, `matplotlib`. GPU section adds `torch`. MP4 export needs
   requires re-tuning particle spawn distributions and drift.
 - **GPU stream-function uses `autograd.grad` once per frame.** That backward
   pass is the bottleneck — ~25 ms for 90k particles on a GTX 1070.
+- **The concepts notebook renders seamless loops by crossfade.** `render_loop`
+  simulates past the end and blends the tail into the head; every driver must
+  be a periodic function of `phase(t, k)` or the seam shows.
+- **Transformer screensaver: β must beat ln N.** With thousands of tokens the
+  softmax's far-token background mass is ~N·e^-β; the separation head leaks
+  into a push away from the global centroid unless its β is sharp (24).
+- **The GPU is shared with the Windows host.** `nvidia-smi` has shown 6 GB VRAM
+  and ~85 % utilisation taken by host processes invisible to WSL; renders can
+  be 3–5× slower than the GPU alone would suggest. Check before trusting timings.
 
 ## Conventions
 

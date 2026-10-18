@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 .DS_Store
+
+# 15-minute screensaver renders from ml_concepts_screensavers.ipynb (hundreds of MB each)
+*_loop.mp4

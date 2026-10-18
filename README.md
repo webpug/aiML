@@ -17,8 +17,14 @@ Nothing here is a library or a product. It's a sandbox.
   idea to a GPU CPPN in PyTorch.
 - **`epistemic_vs_aleatoric.ipynb`** — the two kinds of uncertainty in a
   prediction: what the model doesn't know yet, versus what nothing could know.
+- **`ml_concepts_screensavers.ipynb`** — builds on the screensaver notebook:
+  diffusion models, state-space models and transformers, each explained from
+  its core equation, built as a working toy, and rendered as a 15-minute
+  seamlessly looping screensaver for the same 1:3 display.
 
-The `.mp4` and `.png` files are rendered output from the screensaver notebook.
+The `.mp4` and `.png` files are rendered output from the screensaver notebooks.
+The 15-minute `*_loop.mp4` renders are git-ignored (hundreds of MB each);
+re-run the concepts notebook to regenerate them.
 
 ## Running
 
