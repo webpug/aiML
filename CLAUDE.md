@@ -28,11 +28,20 @@ color.
 
 ```bash
 source .venv/bin/activate
-jupyter lab math_of_ml_screensaver.ipynb
+jupyter lab math_of_ml_screensaver.ipynb       # or ml_concepts_screensavers.ipynb
 ```
 
 Hard deps: `numpy`, `matplotlib`. GPU section adds `torch`. MP4 export needs
 `ffmpeg` on PATH; without it the notebook falls back to GIF.
+
+The concepts notebook hard-requires `torch`, CUDA and `ffmpeg` (it asserts on
+`ffmpeg`; no GIF fallback). Full render ≈ 6 / 26 / 10 min for diffusion / SSM /
+transformer on the shared GTX 1070; use `LOOP_SECONDS=30` while iterating.
+
+WSL has no Linux browser. `~/.jupyter/jupyter_server_config.py` (user config,
+not in the repo) sets `c.ServerApp.browser = '/mnt/c/Windows/explorer.exe %s'`
+and `use_redirect_file = False` so Jupyter opens the Windows default browser
+with the http URL.
 
 ## Design notes worth knowing before editing
 

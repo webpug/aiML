@@ -23,18 +23,46 @@ Nothing here is a library or a product. It's a sandbox.
   seamlessly looping screensaver for the same 1:3 display.
 
 The `.mp4` and `.png` files are rendered output from the screensaver notebooks.
-The 15-minute `*_loop.mp4` renders are git-ignored (hundreds of MB each);
-re-run the concepts notebook to regenerate them.
+The 15-minute `*_loop.mp4` renders are git-ignored (250–300 MB each, over
+GitHub's 100 MB file limit), so they exist only where the notebook was run;
+the committed `*_still.png` posters show one frame of each. Re-run the concepts
+notebook to regenerate them.
 
 ## Running
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install numpy matplotlib jupyterlab
-jupyter lab
+jupyter lab                                   # or: jupyter lab <notebook>.ipynb
 ```
 
 The first research-paper lab installs its pinned-range Hugging Face dependencies in Colab and requires an NVIDIA GPU for the default 3B-model experiment.
 
-The GPU section additionally needs `torch` and an NVIDIA GPU. MP4 export uses
-`ffmpeg` if it's on PATH, and falls back to GIF if not.
+The GPU section of `math_of_ml_screensaver.ipynb` additionally needs `torch` and
+an NVIDIA GPU. Its MP4 export uses `ffmpeg` if it's on PATH, and falls back to GIF
+if not.
+
+`ml_concepts_screensavers.ipynb` needs `torch`, a CUDA GPU and `ffmpeg` on PATH;
+there is no GIF fallback because frames are streamed straight into `ffmpeg`. The
+notebook is committed with its outputs, so it reads fine without re-running.
+A full run renders three 15-minute loops, which took about 6, 26 and 10 minutes
+(diffusion, SSM, transformer) on a GTX 1070 shared with the Windows host. For
+quick iteration, shorten every loop:
+
+```bash
+LOOP_SECONDS=30 jupyter lab ml_concepts_screensavers.ipynb
+```
+
+### Opening the browser from WSL
+
+Under WSL, Jupyter can't find a browser by default ("Couldn't find a suitable web
+browser!"). Point it at the Windows default browser in
+`~/.jupyter/jupyter_server_config.py`:
+
+```python
+c.ServerApp.browser = '/mnt/c/Windows/explorer.exe %s'
+c.ServerApp.use_redirect_file = False   # pass the http:// URL; Windows can't open the file:// redirect page in WSL
+```
+
+Or skip it and paste the `http://localhost:8888/lab?token=...` URL from the
+terminal into a Windows browser.
