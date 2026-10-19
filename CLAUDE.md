@@ -20,8 +20,11 @@ color.
 - `ml_concepts_screensavers.ipynb` — second notebook, builds on the first:
   diffusion models, SSMs and transformers, each as a 15-minute looping
   screensaver (`diffusion_loop.mp4`, `ssm_loop.mp4`, `transformer_loop.mp4`,
-  git-ignored; `*_still.png` posters are committed). Frames stream straight
-  into ffmpeg; `LOOP_SECONDS` env var shortens the loops for iteration.
+  git-ignored; `*_still.png` posters are committed). Renders for a display
+  profile picked by the `SAVER_DISPLAY` env var: `dell34` (default, 3440×1440
+  21:9 landscape — the user's Dell 34" curved monitor) or `portrait` (480×1440,
+  the original 1:3 display). Frames stream straight into ffmpeg;
+  `LOOP_SECONDS` env var shortens the loops for iteration.
 - `.venv/` — local virtualenv (not committed).
 
 ## Running it
@@ -35,8 +38,9 @@ Hard deps: `numpy`, `matplotlib`. GPU section adds `torch`. MP4 export needs
 `ffmpeg` on PATH; without it the notebook falls back to GIF.
 
 The concepts notebook hard-requires `torch`, CUDA and `ffmpeg` (it asserts on
-`ffmpeg`; no GIF fallback). Full render ≈ 6 / 26 / 10 min for diffusion / SSM /
-transformer on the shared GTX 1070; use `LOOP_SECONDS=30` while iterating.
+`ffmpeg`; no GIF fallback). Full `dell34` render ≈ 13 / 17 / 17 min for diffusion /
+SSM / transformer on the GTX 1070 (NVENC), 1.1–1.3 GB per loop; use
+`LOOP_SECONDS=30` while iterating.
 
 WSL has no Linux browser. `~/.jupyter/jupyter_server_config.py` (user config,
 not in the repo) sets `c.ServerApp.browser = '/mnt/c/Windows/explorer.exe %s'`
@@ -54,9 +58,24 @@ with the http URL.
 - **Trails come from an accumulating image buffer**, not scatter markers. The
   buffer fades each frame (`fade≈0.95`) and particles splat intensity into it.
   Scatter plots cannot reproduce the dense, glowing look.
-- **Canvas is 1:3 portrait** throughout (`DOM_W=1.6, DOM_H=4.8` on the CPU
-  side; `GPU_DOM_W=1.5, GPU_DOM_H=4.5` on the GPU side). Changing aspect
-  requires re-tuning particle spawn distributions and drift.
+- **Canvas is 1:3 portrait** throughout the first notebook (`DOM_W=1.6,
+  DOM_H=4.8` on the CPU side; `GPU_DOM_W=1.5, GPU_DOM_H=4.5` on the GPU side).
+  Changing aspect requires re-tuning particle spawn distributions and drift.
+- **The concepts notebook is aspect-agnostic instead.** The long axis always
+  spans ±`LONG` (4.5); shapes and the SSM sequence are written as (across,
+  along) and `orient()` swaps columns on a landscape screen. Keep new code in
+  that frame or it will only fit one display. A bigger buffer needs more ink:
+  particle counts scale by `INK**0.6`, splat brightness by `INK**0.4` (`INK` =
+  buffer pixels / 240×720). The transformer can't add tokens cheaply (N²), so
+  its splat uses a steeper `INK**0.9`.
+- **Segment splatting.** At 3440×1440 a particle moves 5–15 buffer pixels per
+  frame, so `Canvas.splat(..., prev=)` draws the travelled segment (jumps over
+  `MAX_SEG` px, i.e. respawns, are skipped). SSM and transformer use it;
+  diffusion deliberately doesn't — its per-frame noise jumps would scribble.
+- **Encoding uses NVENC with a rate cap** (`-cq 26 -maxrate 12M`), falling back
+  to libx264. Uncapped, diffusion's full-screen noise runs ~25 Mb/s (2.6 GB per
+  loop); the cap costs only faint blocking in the noise. The crossfade head is
+  held in an on-disk memmap, not RAM (1.3 GB at 3440×1440).
 - **GPU stream-function uses `autograd.grad` once per frame.** That backward
   pass is the bottleneck — ~25 ms for 90k particles on a GTX 1070.
 - **The concepts notebook renders seamless loops by crossfade.** `render_loop`

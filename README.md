@@ -20,11 +20,13 @@ Nothing here is a library or a product. It's a sandbox.
 - **`ml_concepts_screensavers.ipynb`** — builds on the screensaver notebook:
   diffusion models, state-space models and transformers, each explained from
   its core equation, built as a working toy, and rendered as a 15-minute
-  seamlessly looping screensaver for the same 1:3 display.
+  seamlessly looping screensaver. Renders at 3440 × 1440 for a Dell 34" 21:9
+  curved ultrawide by default; `SAVER_DISPLAY=portrait` renders 480 × 1440 for
+  the 1:3 display of the first notebook instead.
 
 The `.mp4` and `.png` files are rendered output from the screensaver notebooks.
-The 15-minute `*_loop.mp4` renders are git-ignored (250–300 MB each, over
-GitHub's 100 MB file limit), so they exist only where the notebook was run;
+The 15-minute `*_loop.mp4` renders are git-ignored (1.1–1.3 GB each at
+3440 × 1440, far over GitHub's 100 MB file limit), so they exist only where the notebook was run;
 the committed `*_still.png` posters show one frame of each. Re-run the concepts
 notebook to regenerate them.
 
@@ -45,8 +47,9 @@ if not.
 `ml_concepts_screensavers.ipynb` needs `torch`, a CUDA GPU and `ffmpeg` on PATH;
 there is no GIF fallback because frames are streamed straight into `ffmpeg`. The
 notebook is committed with its outputs, so it reads fine without re-running.
-A full run renders three 15-minute loops, which took about 6, 26 and 10 minutes
-(diffusion, SSM, transformer) on a GTX 1070 shared with the Windows host. For
+A full run renders three 15-minute 3440 × 1440 loops, which took about 13, 17
+and 17 minutes (diffusion, SSM, transformer) on a GTX 1070, encoding on its
+NVENC block. For
 quick iteration, shorten every loop:
 
 ```bash
